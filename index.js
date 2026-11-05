@@ -6,6 +6,7 @@ const db = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
 const pacientesRoutes = require('./routes/pacientes.routes');
 const consultasRoutes = require('./routes/consultas.routes');
+const recetasRoutes = require('./routes/recetas.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/pacientes', pacientesRoutes);
 app.use('/api/consultas', consultasRoutes);
+app.use('/api/recetas', recetasRoutes);
 
 // Ruta base
 app.get('/', async (req, res) => {
