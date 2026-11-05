@@ -1,0 +1,81 @@
+/* Estilos de Pacientes, Consultas e Historial */
+.cab-mod { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+.cab-mod h1 { font-size:30px; font-weight:700; }
+.cab-mod .sub { margin:4px 0 0; font-size:14px; }
+.btn-nuevo { display:flex; align-items:center; gap:8px; }
+.btn-nuevo svg { width:16px; height:16px; fill:none; stroke:#fff; stroke-width:2.4; stroke-linecap:round; }
+.barra { display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.pill { border:1px solid #e3e6ea; background:#fff; color:#555; border-radius:999px; padding:8px 20px; font-family:inherit; font-size:13px; cursor:pointer; }
+.pill.activo { background:#145C4B; color:#fff; border-color:#145C4B; font-weight:700; }
+.barra select { border:1px solid #e3e6ea; background:#fff; border-radius:999px; padding:8px 16px; font-family:inherit; font-size:13px; color:#555; }
+.buscar.ancho { width:320px; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th { text-align:left; font-size:12px; letter-spacing:.04em; padding:10px 8px; }
+.hora-b { font-weight:700; }
+.fila-total td { font-weight:700; border-top:1px solid #eef0f2; padding-top:16px; }
+.fila-total .monto { color:#145C4B; }
+.acc-link { background:none; border:0; color:#145C4B; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; padding:0 6px 0 0; }
+.acc-link.rojo { color:#A32D2D; }
+/* Consultas: tabla + calendario */
+.cons-grid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:22px; align-items:start; }
+.cons-grid.solo-cal { grid-template-columns:1fr; }
+.cons-grid.solo-cal #col-tabla { display:none; }
+.cal-cab { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.cal-cab h3 { margin:0; font-size:18px; font-family:'Fraunces',serif; }
+.cal-cab button { width:30px; height:30px; border-radius:50%; border:1px solid #e3e6ea; background:#fff; cursor:pointer; font-size:15px; }
+.cal { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+.cal .dn { font-size:11px; color:#9aa0a6; padding:6px 0; }
+.cal .dia { position:relative; height:38px; border:0; background:transparent; border-radius:50%; font-family:inherit; font-size:14px; cursor:pointer; color:#222; }
+.cal .dia:hover { background:#F0F5F3; }
+.cal .dia.hoy { background:#145C4B; color:#fff; font-weight:700; }
+.cal .dia.sel:not(.hoy) { outline:2px solid #145C4B; }
+.cal .dia.con::after { content:''; position:absolute; bottom:3px; left:50%; margin-left:-2.5px; width:5px; height:5px; border-radius:50%; background:#378ADD; }
+.cal .dia.hoy.con::after { background:#fff; }
+.leyenda { font-size:12px; color:#6b7280; margin-top:10px; display:flex; align-items:center; gap:6px; }
+.leyenda i { width:7px; height:7px; border-radius:50%; background:#378ADD; display:inline-block; }
+.dia-card h3 { margin:0 0 10px; font-size:16px; }
+.dia-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid #f0f1f3; font-size:14px; }
+.dia-item:first-of-type { border-top:0; }
+.dia-item .pt { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.pt.confirmada { background:#4F8A1F; } .pt.pendiente { background:#BA7517; } .pt.cancelada { background:#C0392B; }
+.dia-item small { color:#6b7280; }
+/* Panel lateral (Nuevo paciente) y modal consulta */
+.lateral { position:fixed; top:0; right:0; bottom:0; width:380px; max-width:100%; background:#fff; box-shadow:-8px 0 30px rgba(0,0,0,.12); padding:28px; z-index:20; overflow-y:auto; transform:translateX(100%); transition:transform .2s; }
+.lateral.abierto { transform:none; }
+.lateral h2 { margin:0 0 18px; font-size:22px; }
+.lateral label, .form-m label { display:block; font-size:13px; font-weight:700; margin:14px 0 5px; }
+.lateral label small, .form-m label small { font-weight:400; color:#9aa0a6; }
+.lateral input, .lateral textarea, .lateral select, .form-m input, .form-m select, .form-m textarea { width:100%; padding:10px 12px; border:1px solid #dfe3e8; border-radius:8px; font-family:inherit; font-size:14px; }
+.lateral textarea { min-height:90px; resize:vertical; }
+.lateral .btn { width:100%; margin-top:20px; height:46px; letter-spacing:.04em; }
+.lateral .btn-sec { margin-top:8px; }
+.lateral .error { color:#A32D2D; font-size:13px; margin-top:12px; }
+.modal.ancho { max-width:440px; }
+.avatar-c { width:36px; height:36px; border-radius:50%; background:#E6F1FB; color:#185FA5; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+.celda-pac { display:flex; align-items:center; gap:12px; }
+.celda-pac small { display:block; color:#6b7280; font-size:12px; }
+.b-activo { background:#EAF3DE; color:#4B7A1F; } .b-inactivo { background:#F1EFE8; color:#444441; }
+.clic { cursor:pointer; } .clic:hover td { background:#fafbfc; }
+/* Historial */
+.hist-grid { display:grid; grid-template-columns:320px minmax(0,1fr); gap:22px; align-items:start; }
+.lista-pac { padding:14px; }
+.lista-pac .buscar { width:100%; margin-bottom:10px; height:38px; }
+.pac-item { display:block; width:100%; text-align:left; border:0; background:transparent; padding:10px 12px; border-radius:10px; font-family:inherit; cursor:pointer; }
+.pac-item:hover { background:#f4f6f9; }
+.pac-item.sel { background:#E6F1FB; }
+.pac-item strong { display:block; font-size:14px; } .pac-item small { color:#6b7280; font-size:12px; }
+.ficha { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.ficha .av-g { width:56px; height:56px; border-radius:50%; background:#E6F1FB; color:#185FA5; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+.ficha h2 { margin:0; font-size:20px; } .ficha p { margin:2px 0 0; color:#6b7280; font-size:13px; }
+.ficha .lado { margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.b-alerta { background:#FAEEDA; color:#9A5F12; } .b-ok { background:#EAF3DE; color:#4B7A1F; }
+.linea { position:relative; margin:8px 0 0 8px; padding-left:26px; border-left:2px solid #e8ecf0; }
+.ev { position:relative; padding:0 0 22px; }
+.ev::before { content:''; position:absolute; left:-33px; top:3px; width:12px; height:12px; border-radius:50%; background:#378ADD; border:2px solid #fff; }
+.ev.receta::before { background:#BA7517; } .ev.alta::before { background:#4F8A1F; }
+.ev .fecha { font-size:12px; color:#9aa0a6; }
+.ev .tit { font-weight:700; font-size:15px; margin:2px 0; display:flex; gap:8px; align-items:center; }
+.tag { font-size:10px; letter-spacing:.06em; padding:2px 8px; border-radius:999px; background:#E6F1FB; color:#185FA5; }
+.ev.receta .tag { background:#FAEEDA; color:#9A5F12; }
+.ev p { margin:0; color:#555; font-size:13px; }
+@media (max-width:900px){ .cons-grid,.hist-grid{grid-template-columns:1fr} }

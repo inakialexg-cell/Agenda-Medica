@@ -4,28 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Recetas — Consultorio "Diaz"</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="recetas.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
 </head>
 <body>
 
-  <aside class="sidebar">
-    <div class="logo"><span class="logo-cruz">+</span><span class="marca">Consultorio "Diaz"</span></div>
-    <p class="etiqueta">PANEL ADMINISTRADOR</p>
-    <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Pacientes</a>
-      <a href="#">Consultas</a>
-      <a href="recetas.html" class="activo">Recetas</a>
-      <a href="#">Historial</a>
-    </nav>
-    <p class="etiqueta">CUENTA</p>
-    <nav>
-      <a href="#">Mi perfil</a>
-      <a href="#" id="cerrar-sesion">Cerrar sesión</a>
-    </nav>
-    <div class="usuario"><span class="avatar-usuario">DD</span><div><strong>Dra. Ana Díaz</strong><small>Administradora</small></div></div>
-  </aside>
+  <aside class="sidebar" id="sidebar"></aside>
 
   <!-- Contenido principal -->
   <main class="contenido">
@@ -78,6 +63,8 @@
     </form>
   </aside>
 
-  <script src="recetas.js"></script>
+  <script src="/js/comun.js"></script>
+<script>const u = exigirRol('ADMINISTRADOR'); if (u) dibujarSidebar(u, 'recetas');</script>
+<script src="recetas.js"></script>
 </body>
 </html>

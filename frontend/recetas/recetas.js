@@ -3,8 +3,8 @@
 // Cuando el backend esté listo, cambia USAR_MOCK a false.
 
 const CONFIG = {
-  USAR_MOCK: true,                       // true = datos de prueba | false = backend real
-  API_URL: 'http://localhost:3000/api',  // dirección del backend
+  USAR_MOCK: false,                      // true = datos de prueba | false = backend real
+  API_URL: '/api',  // misma dirección del servidor (funciona en cualquier puerto)
 };
 
 // Doctores de prueba (cuando exista el endpoint de doctores, se reemplaza)
@@ -48,7 +48,7 @@ function guardarMock(lista) {
 
 // Petición al backend real, con el token del login
 async function pedir(ruta, opciones = {}) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   const respuesta = await fetch(CONFIG.API_URL + ruta, {
     ...opciones,
     headers: {
@@ -249,8 +249,7 @@ $('form-receta').addEventListener('submit', async (e) => {
 // Cerrar sesión: borra el token y manda al login (ajusta la ruta cuando exista)
 $('cerrar-sesion').addEventListener('click', (e) => {
   e.preventDefault();
-  localStorage.removeItem('token');
-  alert('Sesión cerrada (aquí irá la redirección al login)');
+  cerrarSesion();
 });
 
 // ---------- Arranque ----------

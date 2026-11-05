@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi panel — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cabecera" id="cabecera"></div>
+  <div id="mensaje" class="mensaje oculto"></div>
+  <div class="banner">
+    <div><h2>¿Necesitas una consulta?</h2><p>Agenda una nueva cita con tu doctor en menos de un minuto</p></div>
+    <button class="btn btn-claro" id="btn-agendar">+ Agendar consulta</button>
+  </div>
+  <div class="fila-dos">
+    <div id="consultas"><div class="titulo-seccion"><h2>Tu próxima consulta</h2></div><div class="tarjeta-p" id="proxima"></div></div>
+    <div id="recetas"><div class="titulo-seccion"><h2>Recetas recientes</h2></div><div class="tarjeta-p" id="lista-recetas"></div></div>
+  </div>
+  <div id="historial"><div class="titulo-seccion"><h2>Historial reciente</h2></div><div class="panel" id="lista-historial"></div></div>
+</main>
+<div class="fondo-modal oculto" id="modal">
+  <form class="modal" id="form-cita">
+    <h2>Agendar consulta</h2>
+    <div id="error-cita" class="mensaje oculto"></div>
+    <label for="doctor">Doctor</label>
+    <select id="doctor"><option value="1">Dr. Díaz — Medicina general</option><option value="2">Dra. Ramírez — Medicina general</option></select>
+    <label for="fecha-hora">Fecha y hora</label><input id="fecha-hora" type="datetime-local" required>
+    <label for="motivo">Motivo</label><input id="motivo" type="text" required placeholder="Ej. Revisión general">
+    <div class="acciones"><button type="button" class="btn btn-sec" id="cancelar">Cancelar</button><button class="btn" type="submit">Agendar</button></div>
+  </form>
+</div>
+<script src="/js/comun.js"></script>
+<script>
+const u = exigirRol('PACIENTE');
+const MESES = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+async function cargar() {
+  const d = await pedir('/consultas/historial/' + u.id);
+  const ahora = new Date();
+  const consultas = d.timeline.filter(t => t.tipo === 'CONSULTA');
+  const futuras = consultas.filter(t => t.detalle.estatus !== 'CANCELADA' && new Date(t.fecha) >= ahora).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  const quien = x => x.doctor_nombre ? x.doctor_nombre : 'Consultorio "Diaz"';
+  document.getElementById('proxima').innerHTML = futuras.length
+    ? (c => { const f = new Date(c.fecha); return `<div class="cita"><div class="fecha-cuadro"><small>${MESES[f.getMonth()]}</small><strong>${f.getDate()}</strong></div><div><div class="t">${esc(quien(c.detalle))}</div><div class="d">${esc(hora(c.fecha))} — ${esc(c.detalle.motivo)}</div>${badge(c.detalle.estatus)}</div></div>`; })(futuras[0])
+    : '<p class="vacio">No tienes consultas próximas.</p>';
+  const recetas = d.timeline.filter(t => t.tipo === 'RECETA').slice(0, 3);
+  document.getElementById('lista-recetas').innerHTML = recetas.length
+    ? recetas.map(r => `<div class="rec"><span class="ico-r">=</span><div><strong>${esc(r.detalle.medicamento)}</strong><small>Emitida el ${esc(fechaCorta(r.fecha))} — ${esc(quien(r.detalle))}</small></div></div>`).join('')
+    : '<p class="vacio">Aún no tienes recetas.</p>';
+  document.getElementById('lista-historial').innerHTML = consultas.length
+    ? '<table><thead><tr><th>FECHA</th><th>MOTIVO</th><th>DOCTOR</th></tr></thead><tbody>' + consultas.slice(0, 5).map(t => `<tr><td>${esc(fechaCorta(t.fecha))}</td><td>${esc(t.detalle.motivo)}</td><td>${esc(quien(t.detalle))}</td></tr>`).join('') + '</tbody></table>'
+    : '<p class="vacio" style="padding:14px 0">Todavía no hay consultas en tu historial.</p>';
+}
+if (u) {
+  dibujarSidebar(u, 'inicio');
+  document.getElementById('cabecera').innerHTML = cabeceraHtml('Hola, ' + primerNombre(u.nombre), 'Aquí puedes ver y gestionar tus consultas médicas', false, u);
+  cargar().catch(e => { const m = document.getElementById('mensaje'); m.textContent = 'No se pudo cargar tu información: ' + e.message; m.classList.remove('oculto'); });
+  const modal = document.getElementById('modal');
+  document.getElementById('btn-agendar').addEventListener('click', () => modal.classList.remove('oculto'));
+  document.getElementById('cancelar').addEventListener('click', () => modal.classList.add('oculto'));
+  document.getElementById('form-cita').addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = document.getElementById('error-cita'); err.classList.add('oculto');
+    try {
+      await pedir('/consultas', { method:'POST', body: JSON.stringify({
+        paciente_id: u.id, doctor_id: Number(document.getElementById('doctor').value),
+        fecha_hora: document.getElementById('fecha-hora').value, motivo: document.getElementById('motivo').value.trim(), costo: 0 }) });
+      modal.classList.add('oculto'); e.target.reset(); cargar();
+    } catch (x) { err.textContent = x.message; err.classList.remove('oculto'); }
+  });
+}
+</script></body></html>

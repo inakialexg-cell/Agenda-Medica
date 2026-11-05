@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi perfil — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cabecera" id="cabecera"></div>
+  <div class="perfil-card" id="datos"></div>
+</main>
+<script src="/js/comun.js"></script>
+<script>
+const { token, usuario: u } = sesion();
+if (!token || !u) { location.href = '/login.html'; }
+else {
+  dibujarSidebar(u, 'perfil');
+  document.getElementById('cabecera').innerHTML = cabeceraHtml('Mi perfil', 'Los datos de tu cuenta', false, u);
+  document.getElementById('datos').innerHTML = `<span class="avatar-top">${esc(iniciales(u.nombre))}</span>
+    <dl><dt>Nombre</dt><dd>${esc(u.nombre)}</dd><dt>Correo electrónico</dt><dd>${esc(u.email)}</dd>
+    <dt>Tipo de cuenta</dt><dd>${u.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Paciente'}</dd></dl>`;
+}
+</script></body></html>

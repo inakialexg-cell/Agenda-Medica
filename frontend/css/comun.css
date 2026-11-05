@@ -1,0 +1,174 @@
+@import url('/css/sidebar.css');
+/* Estilos compartidos: login, panel de administrador y panel de paciente.
+   Mismos colores y tipografía que frontend/recetas/recetas.css */
+:root { --verde:#145C4B; --verde-claro:#CDE8DF; --fondo:#F4F6F9; --texto:#1A1A1A; }
+* { box-sizing:border-box; }
+body { margin:0; display:flex; min-height:100vh; background:var(--fondo); color:var(--texto); font-family:'Quattrocento Sans',sans-serif; }
+h1,h2,.marca { font-family:'Fraunces',serif; }
+a { color:inherit; }
+
+/* Contenido */
+.contenido { flex:1; padding:34px 40px; min-width:0; }
+.contenido h1 { margin:0; font-size:26px; }
+.sub { color:#6b7280; font-size:13px; margin:2px 0 18px; }
+.btn { background:var(--verde); color:#fff; border:0; padding:10px 16px; border-radius:8px; font-family:inherit; font-weight:700; cursor:pointer; font-size:14px; }
+.btn:hover { opacity:.9; }
+.btn-claro { background:#fff; color:var(--verde); }
+.btn-sec { background:#fff; color:var(--texto); border:1px solid #e3e6ea; }
+.oculto { display:none !important; }
+
+.tarjetas { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:16px; }
+.stat { background:#fff; border-radius:12px; padding:16px 18px; }
+.stat small { color:#6b7280; font-size:12px; }
+.stat strong { display:block; font-size:30px; margin-top:4px; font-family:'Fraunces',serif; }
+.panel { background:#fff; border-radius:12px; padding:18px 20px; margin-bottom:16px; overflow-x:auto; }
+.panel h2 { margin:0 0 10px; font-size:17px; }
+.dos-col { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+table { width:100%; border-collapse:collapse; min-width:420px; }
+th { text-align:left; font-size:11px; letter-spacing:.05em; color:#9aa0a6; padding:10px 8px; }
+td { padding:11px 8px; border-top:1px solid #f0f1f3; font-size:14px; }
+.vacio { color:#9aa0a6; font-size:14px; padding:6px 0; }
+.badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+.b-confirmada,.b-vigente { background:#EAF3DE; color:#3B6D11; }
+.b-pendiente { background:#FAEEDA; color:#854F0B; }
+.b-cancelada { background:#FCEBEB; color:#A32D2D; }
+.b-finalizada { background:#F1EFE8; color:#444441; }
+.banner { background:var(--verde); color:#fff; border-radius:12px; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+.banner h2 { margin:0 0 4px; font-size:20px; }
+.banner p { margin:0; opacity:.8; font-size:13px; }
+.item { padding:10px 0; border-top:1px solid #f0f1f3; font-size:14px; }
+.item:first-of-type { border-top:0; }
+.item small { display:block; color:#6b7280; }
+.mensaje { background:#FCEBEB; color:#A32D2D; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
+
+/* Ventana para agendar */
+.fondo-modal { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; padding:16px; z-index:10; }
+.modal { background:#fff; border-radius:12px; padding:22px; width:100%; max-width:380px; }
+.modal h2 { margin:0 0 12px; }
+.modal label { display:block; font-size:13px; font-weight:700; margin:12px 0 4px; }
+.modal input,.modal select { width:100%; padding:9px 12px; border:1px solid #e3e6ea; border-radius:8px; font-family:inherit; font-size:14px; }
+.modal .acciones { display:flex; gap:8px; margin-top:16px; }
+.modal .acciones .btn { flex:1; }
+
+/* Login */
+body.login { display:flex; }
+.login-marca { width:45%; background:var(--verde); color:#fff; padding:48px; display:flex; flex-direction:column; justify-content:center; }
+.login-marca .marca-chica { font-size:18px; margin-bottom:28px; display:flex; align-items:center; gap:8px; }
+.login-marca h1 { font-size:46px; margin:0 0 12px; line-height:1.1; }
+.login-marca p { opacity:.8; max-width:340px; line-height:1.5; }
+.login-form-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:24px; }
+.login-form { width:100%; max-width:360px; }
+.login-form h2 { font-size:26px; margin:0 0 18px; }
+.rol-toggle { display:flex; gap:8px; margin-bottom:6px; }
+.rol-toggle button { flex:1; padding:9px; border:1px solid #d6dbe0; background:#fff; border-radius:8px; font-family:inherit; font-size:14px; cursor:pointer; }
+.rol-toggle button.activo { background:var(--verde); color:#fff; border-color:var(--verde); font-weight:700; }
+.login-form label { display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+.login-form input { width:100%; padding:11px 12px; border:1px solid #d6dbe0; border-radius:8px; font-family:inherit; font-size:14px; }
+.login-form .btn { width:100%; margin-top:20px; padding:12px; letter-spacing:.05em; }
+@media (max-width:760px){ body{flex-direction:column;} .sidebar{width:100%;} .login-marca{width:100%;padding:28px;} .login-marca h1{font-size:34px;} }
+
+/* ---- Cabecera con buscador, campana y avatar ---- */
+.cabecera { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
+.cabecera h1 { font-weight:700; font-size:30px; }
+.cabecera .sub { margin:4px 0 0; font-size:14px; }
+.herramientas { display:flex; align-items:center; gap:12px; }
+.buscar { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e3e6ea; border-radius:999px; padding:0 16px; height:40px; width:200px; color:#8a9099; }
+.buscar svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; }
+.buscar input { border:0; outline:0; background:transparent; font-family:inherit; font-size:13px; width:100%; }
+.campana { position:relative; width:40px; height:40px; border-radius:50%; background:#fff; border:1px solid #e3e6ea; display:flex; align-items:center; justify-content:center; color:#555; }
+.campana svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.campana::after { content:''; position:absolute; top:7px; right:8px; width:8px; height:8px; border-radius:50%; background:#D85A30; }
+.avatar-top { width:40px; height:40px; border-radius:50%; background:#145C4B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
+
+/* ---- Tarjetas de estadística con icono ---- */
+.tarjetas { grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px; }
+.stat { border:1px solid #e8ecf0; border-radius:16px; padding:16px 18px; }
+.stat .ico { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+.stat .ico svg { width:18px; height:18px; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.stat small { display:block; color:#6b7280; font-size:13px; }
+.stat strong { font-family:'Quattrocento Sans',sans-serif; font-weight:700; font-size:28px; margin-top:2px; }
+.i-azul { background:#E6F1FB; } .i-azul svg { stroke:#378ADD; }
+.i-verde { background:#EAF3DE; } .i-verde svg { stroke:#4F8A1F; }
+.i-naranja { background:#FAEEDA; } .i-naranja svg { stroke:#BA7517; }
+.i-rojo { background:#FCEBEB; } .i-rojo svg { stroke:#C0392B; }
+@media (max-width:980px){ .tarjetas{ grid-template-columns:repeat(2,1fr);} }
+
+.titulo-seccion { display:flex; justify-content:space-between; align-items:baseline; margin:0 0 12px; }
+.titulo-seccion h2 { margin:0; font-size:20px; font-weight:700; }
+.titulo-seccion a { color:#145C4B; font-weight:700; font-size:13px; text-decoration:none; }
+.panel { border:1px solid #e8ecf0; border-radius:16px; padding:10px 24px; }
+.panel table { min-width:0; }
+.panel th { font-weight:400; color:#9aa0a6; border-bottom:1px solid #eef0f2; }
+.panel td { padding:15px 8px; border-top:0; border-bottom:1px solid #f4f5f7; }
+.panel tr:last-child td { border-bottom:0; }
+.badge { padding:5px 14px; font-weight:400; font-size:12px; }
+.b-confirmada,.b-vigente { background:#EAF3DE; color:#4B7A1F; }
+.b-pendiente { background:#FAEEDA; color:#9A5F12; }
+
+/* ---- Panel de paciente ---- */
+.banner { background:#145C4B; border-radius:16px; padding:26px 30px; margin-bottom:28px; }
+.banner h2 { font-size:21px; font-weight:700; }
+.banner .btn-claro { color:#145C4B; padding:13px 26px; border-radius:8px; }
+.fila-dos { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:26px; }
+@media (max-width:900px){ .fila-dos{ grid-template-columns:1fr; } }
+.tarjeta-p { background:#fff; border:1px solid #e8ecf0; border-radius:16px; padding:22px; min-height:128px; }
+.cita { display:flex; gap:18px; align-items:flex-start; }
+.fecha-cuadro { background:#E6F1FB; color:#185FA5; border-radius:12px; width:60px; padding:10px 0; text-align:center; flex-shrink:0; }
+.fecha-cuadro small { display:block; font-size:12px; font-weight:700; letter-spacing:.04em; color:#378ADD; }
+.fecha-cuadro strong { font-size:22px; }
+.cita .t { font-weight:700; font-size:16px; }
+.cita .d { color:#6b7280; font-size:14px; margin:4px 0 10px; }
+.rec { display:flex; gap:12px; align-items:center; padding:10px 0; border-top:1px solid #f0f1f3; }
+.rec:first-child { border-top:0; padding-top:0; }
+.rec .ico-r { width:30px; height:30px; border-radius:50%; background:#FAEEDA; color:#BA7517; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+.rec strong { font-size:14px; } .rec small { display:block; color:#6b7280; font-size:12px; margin-top:2px; }
+
+/* ---- Mi perfil ---- */
+.perfil-card { background:#fff; border:1px solid #e8ecf0; border-radius:16px; padding:28px; max-width:520px; display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+.perfil-card .avatar-top { width:72px; height:72px; font-size:24px; }
+.perfil-card dl { margin:0; } .perfil-card dt { font-size:12px; color:#9aa0a6; margin-top:10px; } .perfil-card dd { margin:2px 0 0; font-size:16px; }
+
+/* ---- Login fiel al diseño ---- */
+body.login { background:#F4F6F9; }
+.login-marca { position:relative; overflow:hidden; width:520px; flex-shrink:0; padding:70px 50px 40px; justify-content:flex-start; }
+.login-marca .c1,.login-marca .c2,.login-marca .c3 { position:absolute; border-radius:50%; }
+.login-marca .c1 { width:230px; height:230px; background:#1C715D; top:-110px; left:-40px; }
+.login-marca .c2 { width:120px; height:120px; background:#2E8B74; top:30px; right:20px; }
+.login-marca .c3 { width:360px; height:360px; background:#1C715D; bottom:-250px; right:-150px; }
+.login-marca > *:not(.c1):not(.c2):not(.c3) { position:relative; z-index:1; }
+.login-marca .marca-grande { display:flex; align-items:center; gap:14px; font-family:'Fraunces',serif; font-weight:700; font-size:24px; margin-bottom:96px; }
+.login-marca .marca-grande .logo-cruz { width:44px; height:44px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; }
+.login-marca .marca-grande svg { width:26px; height:26px; stroke:#145C4B; stroke-width:3.2; fill:none; stroke-linecap:round; }
+.login-marca h1 { font-size:54px; font-weight:700; margin:0; line-height:1.05; }
+.login-marca .linea { width:86px; height:5px; background:#8FD6BD; border-radius:3px; margin:12px 0 22px; }
+.login-marca p { max-width:300px; font-size:16px; opacity:.85; margin:0 0 34px; }
+.login-marca ul { list-style:none; padding:0; margin:0; font-size:14px; }
+.login-marca li { margin-bottom:14px; display:flex; align-items:center; gap:12px; opacity:.9; }
+.login-marca li::before { content:''; width:7px; height:7px; border-radius:50%; background:#8FD6BD; }
+.login-marca .pie { position:absolute !important; left:50px; bottom:36px; font-size:12px; opacity:.6; }
+.login-form-wrap { flex:1; }
+.login-form { max-width:360px; }
+.login-form h2 { font-family:'Quattrocento Sans',sans-serif; font-weight:700; font-size:24px; margin:0 0 6px; }
+.login-form .sub-l { color:#6b7280; font-size:13px; margin:0 0 24px; }
+.rol-toggle { background:#EAECEF; border-radius:999px; padding:0; gap:0; margin-bottom:22px; }
+.rol-toggle button { border:0; background:transparent; border-radius:999px; height:42px; color:#555; }
+.rol-toggle button.activo { background:#145C4B; color:#fff; font-weight:700; }
+.login-form label { font-weight:400; font-size:12px; color:#555; margin:0 0 6px; }
+.campo { position:relative; margin-bottom:16px; }
+.campo input { height:46px; padding:0 44px 0 42px; border:1px solid #dfe3e8; border-radius:10px; background:#fff; }
+.campo .ic { position:absolute; left:14px; top:13px; width:19px; height:19px; stroke:#8a9099; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.campo .ojo { position:absolute; right:12px; top:11px; background:none; border:0; cursor:pointer; padding:2px; color:#8a9099; }
+.campo .ojo svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.fila-recordar { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#666; margin:-2px 0 4px; }
+.fila-recordar label { display:flex; align-items:center; gap:8px; margin:0; font-size:13px; }
+.fila-recordar a { color:#145C4B; font-weight:700; font-size:12px; text-decoration:none; }
+.login-form .btn { height:48px; border-radius:10px; margin-top:22px; }
+.divisor { display:flex; align-items:center; gap:12px; color:#b0b5bb; font-size:11px; margin:22px 0 16px; }
+.divisor::before,.divisor::after { content:''; flex:1; border-top:1px solid #e3e6ea; }
+.ayuda { text-align:center; color:#6b7280; font-size:12px; margin:0 0 22px; }
+.url-acceso { background:#F0F5F3; border:1px solid #e1ebe7; border-radius:10px; padding:12px 16px; font-size:12px; color:#555; }
+.url-acceso strong { display:block; color:#145C4B; font-size:11px; margin-bottom:3px; }
+@media (max-width:860px){ .login-marca{ width:100%; padding:30px; } .login-marca .marca-grande{margin-bottom:30px;} .login-marca h1{font-size:38px;} .login-marca .pie{position:static !important;margin-top:20px;} body.login{flex-direction:column;} }
+
+.fila-recordar input { width:auto; height:auto; padding:0; margin:0; }
+.fila-recordar label { white-space:nowrap; }

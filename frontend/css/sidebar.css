@@ -1,0 +1,17 @@
+/* Menú lateral compartido (igual al diseño aprobado). Lo usan login-paneles y Recetas. */
+:root { --verde:#145C4B; --verde-activo:#1C715D; --fondo:#F4F6F9; --texto:#1A1A1A; }
+.sidebar { width:256px; flex-shrink:0; background:#145C4B; color:#fff; padding:28px 16px 16px; display:flex; flex-direction:column; min-height:100vh; position:sticky; top:0; align-self:flex-start; height:100vh; }
+.sidebar .logo { display:flex; align-items:center; gap:12px; margin:0 0 22px 12px; }
+.sidebar .logo-cruz { width:36px; height:36px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; }
+.sidebar .logo-cruz svg { width:22px; height:22px; stroke:#145C4B; stroke-width:3; fill:none; stroke-linecap:round; }
+.sidebar .logo .marca { font-family:'Fraunces',serif; font-weight:700; font-size:17px; line-height:1.1; }
+.sidebar .etiqueta { font-size:11px; letter-spacing:.14em; color:rgba(255,255,255,.6); margin:0 0 10px 12px; }
+.sidebar nav a { display:flex; align-items:center; gap:14px; color:#E7F2EE; text-decoration:none; padding:0 14px; height:46px; border-radius:10px; font-size:15px; margin-bottom:6px; }
+.sidebar nav a svg { width:22px; height:22px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.sidebar nav a:hover { background:rgba(255,255,255,.08); }
+.sidebar nav a.activo { background:#1C715D; color:#fff; font-weight:700; }
+.sidebar .separador { border-top:1px solid rgba(255,255,255,.14); margin:14px 4px 18px; }
+.sidebar .usuario { margin-top:auto; display:flex; align-items:center; gap:12px; background:#1C715D; padding:12px; border-radius:12px; font-size:13px; }
+.sidebar .usuario small { display:block; opacity:.7; font-size:12px; margin-top:2px; }
+.sidebar .avatar-usuario { width:34px; height:34px; border-radius:50%; background:#fff; color:#145C4B; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+@media (max-width:760px){ .sidebar{ width:100%; height:auto; min-height:0; position:static; } .sidebar .usuario{ margin-top:12px; } }

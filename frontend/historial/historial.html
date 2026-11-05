@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Historial — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"><link rel="stylesheet" href="/css/modulos.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cab-mod"><div><h1>Historial clínico</h1><p class="sub">Consultas y recetas de cada paciente en una sola línea de tiempo</p></div></div>
+  <div id="mensaje" class="mensaje oculto"></div>
+  <div class="hist-grid">
+    <div class="panel lista-pac">
+      <label class="buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input id="q" type="search" placeholder="Buscar paciente..."></label>
+      <div id="lista"></div>
+    </div>
+    <div>
+      <div class="panel" id="ficha-p"><p class="vacio">Selecciona un paciente.</p></div>
+      <div class="panel"><h2 style="margin:12px 0 14px">Línea de tiempo</h2><div class="linea" id="linea"></div></div>
+    </div>
+  </div>
+</main>
+<script src="/js/comun.js"></script>
+<script>
+const u = exigirRol('ADMINISTRADOR');
+if (u) {
+  dibujarSidebar(u, 'historial');
+  const $ = id => document.getElementById(id);
+  let pacs = [], selId = null;
+  const falla = e => { $('mensaje').textContent = e.message; $('mensaje').classList.remove('oculto'); };
+  const edad = f => f ? Math.floor((Date.now() - new Date(f)) / 31557600000) : null;
+  function dibujarLista() {
+    const t = $('q').value.toLowerCase();
+    $('lista').innerHTML = pacs.filter(p => p.nombre.toLowerCase().includes(t)).map(p => {
+      const a = edad(p.fecha_nacimiento);
+      return `<button class="pac-item ${p.id === selId ? 'sel' : ''}" data-id="${p.id}"><strong>${esc(p.nombre)}</strong><small>${a !== null ? a + ' años — ' : ''}Últ. visita ${p.ultima_visita ? esc(fechaCorta(p.ultima_visita)) : 'sin visitas'}</small></button>`;
+    }).join('') || '<p class="vacio">Sin resultados.</p>';
+  }
+  async function ver(id) {
+    selId = id; dibujarLista();
+    try {
+      const d = await pedir('/consultas/historial/' + id);
+      const p = d.paciente, a = edad(p.fecha_nacimiento);
+      const alerta = p.notas_medicas && p.notas_medicas.trim() && !/^sin alergias/i.test(p.notas_medicas.trim());
+      $('ficha-p').innerHTML = `<div class="ficha"><span class="av-g">${esc(iniciales(p.nombre))}</span>
+        <div><h2>${esc(p.nombre)}</h2><p>${a !== null ? a + ' años · ' : ''}${esc(p.telefono || 'sin teléfono')} · ${esc(p.email)}</p></div>
+        <div class="lado"><span class="badge ${alerta ? 'b-alerta' : 'b-ok'}">${alerta ? esc(p.notas_medicas) : 'Sin alergias registradas'}</span><a class="btn btn-sec" style="text-decoration:none" href="/pacientes/pacientes.html">Editar ficha</a></div></div>`;
+      const ev = d.timeline.map(t => t.tipo === 'CONSULTA'
+        ? `<div class="ev"><div class="fecha">${esc(fechaCorta(t.fecha))} · ${esc(hora(t.fecha))}</div><div class="tit">${esc(t.detalle.motivo)} <span class="tag">CONSULTA</span></div><p>${esc(t.detalle.doctor_nombre || '')} · ${esc(String(t.detalle.estatus).toLowerCase())}</p></div>`
+        : `<div class="ev receta"><div class="fecha">${esc(fechaCorta(t.fecha))}</div><div class="tit">${esc(t.detalle.medicamento)} <span class="tag">RECETA</span></div><p>${esc(t.detalle.dosis_indicaciones || '')}${t.detalle.doctor_nombre ? ' · ' + esc(t.detalle.doctor_nombre) : ''}</p></div>`);
+      ev.push(`<div class="ev alta"><div class="fecha">${esc(fechaCorta(p.creado_en))}</div><div class="tit">Paciente registrado en el sistema</div></div>`);
+      $('linea').innerHTML = ev.join('');
+    } catch (er) { falla(er); }
+  }
+  $('q').addEventListener('input', dibujarLista);
+  $('lista').addEventListener('click', e => { const b = e.target.closest('.pac-item'); if (b) ver(+b.dataset.id); });
+  pedir('/pacientes').then(r => { pacs = r; dibujarLista(); if (r.length) ver(r[0].id); }).catch(falla);
+}
+</script></body></html>

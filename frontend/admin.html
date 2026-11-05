@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel administrador — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cabecera" id="cabecera"></div>
+  <div id="mensaje" class="mensaje oculto"></div>
+  <div class="tarjetas">
+    <div class="stat"><span class="ico i-azul"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><small>Consultas hoy</small><strong id="s-hoy">–</strong></div>
+    <div class="stat"><span class="ico i-verde"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="9" r="3"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M3 19c.6-3 2.8-4.6 5.5-4.6S13.4 16 14 19"/><path d="M15 15.2c2.6-.3 4.7.9 5.4 3.8"/></svg></span><small>Pacientes activos</small><strong id="s-pac">–</strong></div>
+    <div class="stat"><span class="ico i-naranja"><svg viewBox="0 0 24 24"><path d="M6 8h12M6 12h12M6 16h7"/></svg></span><small>Recetas emitidas (mes)</small><strong id="s-rec">–</strong></div>
+    <div class="stat"><span class="ico i-rojo"><svg viewBox="0 0 24 24"><path d="M12 11v6"/><circle cx="12" cy="7.5" r=".6" fill="currentColor"/></svg></span><small>Pendientes de confirmar</small><strong id="s-pen">–</strong></div>
+  </div>
+  <div class="titulo-seccion"><h2>Próximas consultas</h2><a href="/consultas/consultas.html">Ver todas →</a></div>
+  <div class="panel">
+    <table><thead><tr><th>HORA</th><th>PACIENTE</th><th>MOTIVO</th><th>ESTATUS</th></tr></thead><tbody id="tabla"></tbody></table>
+    <p class="vacio oculto" id="vacio">No hay consultas para hoy.</p>
+  </div>
+</main>
+<script src="/js/comun.js"></script>
+<script>
+const u = exigirRol('ADMINISTRADOR');
+if (u) {
+  dibujarSidebar(u, 'inicio');
+  document.getElementById('cabecera').innerHTML = cabeceraHtml('Hola, ' + u.nombre, fechaLarga() + ' — esto es lo que tienes hoy', true, u);
+  const falla = e => { const m = document.getElementById('mensaje'); m.textContent = 'No se pudo cargar una parte del panel: ' + e.message; m.classList.remove('oculto'); };
+  let filas = [];
+  const dibujar = txt => {
+    const t = (txt || '').toLowerCase();
+    const ver = filas.filter(c => c.paciente_nombre.toLowerCase().includes(t));
+    document.getElementById('tabla').innerHTML = ver.map(c => `<tr><td>${esc(hora(c.fecha_hora))}</td><td>${esc(c.paciente_nombre)}</td><td>${esc(c.motivo)}</td><td>${badge(c.estatus)}</td></tr>`).join('');
+    document.getElementById('vacio').classList.toggle('oculto', ver.length > 0);
+  };
+  document.getElementById('buscar-paciente').addEventListener('input', e => dibujar(e.target.value));
+  pedir('/consultas/dia?fecha=' + new Date().toLocaleDateString('en-CA')).then(d => {
+    filas = d.consultas;
+    document.getElementById('s-hoy').textContent = d.consultas.length;
+    document.getElementById('s-pen').textContent = d.consultas.filter(c => c.estatus === 'PENDIENTE').length;
+    dibujar('');
+  }).catch(falla);
+  pedir('/pacientes').then(p => { document.getElementById('s-pac').textContent = p.filter(x => x.activo).length; }).catch(falla);
+  pedir('/recetas').then(r => {
+    const h = new Date();
+    document.getElementById('s-rec').textContent = r.filter(x => { const f = new Date(x.emitida_el); return f.getMonth() === h.getMonth() && f.getFullYear() === h.getFullYear(); }).length;
+  }).catch(falla);
+}
+</script></body></html>

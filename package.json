@@ -1,4 +1,10 @@
 {
+  "name": "agenda-medica",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "npx nodemon index.js"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
