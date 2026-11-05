@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calendario | Agenda Médica</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #F4F6F9;
+            color: #1A1A1A;
+            font-family: 'Quattrocento Sans', sans-serif;
+        }
+
+        h1 {
+            color: #145C4B;
+            font-family: 'Fraunces', serif;
+        }
+
+        .contenedor {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .navegacion {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #145C4B;
+            color: white;
+            cursor: pointer;
+        }
+
+        .calendario {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .dia-semana {
+            text-align: center;
+            padding: 12px 3px;
+            font-weight: bold;
+            color: #145C4B;
+        }
+
+        .dia {
+            min-height: 75px;
+            padding: 10px;
+            background: #F4F6F9;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .dia.actual {
+            background: #CDE8DF;
+            border: 2px solid #145C4B;
+            font-weight: bold;
+        }
+
+        .dia.otro-mes {
+            color: #aaa;
+        }
+
+        .punto {
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: #145C4B;
+            border-radius: 50%;
+            margin: 8px auto 0;
+        }
+
+        .regresar {
+            display: inline-block;
+            margin-top: 20px;
+            color: #145C4B;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .dia {
+                min-height: 45px;
+                padding: 5px 2px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+        <a href="/consultas">Volver al listado</a>
+        <h1>Agenda Médica</h1>
+        <h2>Calendario de consultas</h2>
+
+        <div class="navegacion">
+
+            <button onclick="cambiarMes(-1)">
+                Anterior
+            </button>
+
+            <h3 id="mesAnio"></h3>
+
+            <button onclick="cambiarMes(1)">
+                Siguiente
+            </button>
+
+        </div>
+
+        <div class="calendario" id="calendario">
+
+            <div class="dia-semana">Dom</div>
+            <div class="dia-semana">Lun</div>
+            <div class="dia-semana">Mar</div>
+            <div class="dia-semana">Mié</div>
+            <div class="dia-semana">Jue</div>
+            <div class="dia-semana">Vie</div>
+            <div class="dia-semana">Sáb</div>
+
+        </div>
+
+        <a href="/consultas" class="regresar">
+            ← Regresar al listado
+        </a>
+
+    </div>
+
+
+    <script>
+        // Obtener los días que tienen consultas desde el servidor
+        const diasConConsultas = [];
+
+        const calendario = document.getElementById('calendario');
+        const mesAnio = document.getElementById('mesAnio');
+
+        const hoy = new Date();
+
+        let mes = hoy.getMonth();
+        let anio = hoy.getFullYear();
+
+        const nombresMeses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril',
+            'Mayo', 'Junio', 'Julio', 'Agosto',
+            'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        // Generar el calendario
+        function generarCalendario() {
+
+            calendario.innerHTML = `
+                <div class="dia-semana">Dom</div>
+                <div class="dia-semana">Lun</div>
+                <div class="dia-semana">Mar</div>
+                <div class="dia-semana">Mié</div>
+                <div class="dia-semana">Jue</div>
+                <div class="dia-semana">Vie</div>
+                <div class="dia-semana">Sáb</div>
+            `;
+
+            mesAnio.textContent = nombresMeses[mes] + ' ' + anio;
+
+            const primerDia = new Date(anio, mes, 1).getDay();
+            const diasMes = new Date(anio, mes + 1, 0).getDate();
+
+            // Generar seis filas para cubrir todos los meses
+            for (let i = 0; i < 42; i++) {
+
+                const numeroDia = i - primerDia + 1;
+
+                const celda = document.createElement('div');
+                celda.classList.add('dia');
+
+                if (numeroDia < 1 || numeroDia > diasMes) {
+                    celda.classList.add('otro-mes');
+                    celda.textContent = '';
+                } else {
+
+                    celda.textContent = numeroDia;
+
+                    // Resaltar el día actual
+                    if (
+                        numeroDia === hoy.getDate() &&
+                        mes === hoy.getMonth() &&
+                        anio === hoy.getFullYear()
+                    ) {
+                        celda.classList.add('actual');
+                    }
+
+                    // Marcar días con consultas
+                    const fechaDia =
+                        anio + '-' +
+                        String(mes + 1).padStart(2, '0') + '-' +
+                        String(numeroDia).padStart(2, '0');
+
+                    if (diasConConsultas.includes(fechaDia)) {
+
+                        const punto = document.createElement('span');
+                        punto.classList.add('punto');
+
+                        celda.appendChild(punto);
+                    }
+                }
+
+                calendario.appendChild(celda);
+            }
+        }
+
+        // Cambiar de mes
+        function cambiarMes(cantidad) {
+
+            mes += cantidad;
+
+            if (mes < 0) {
+                mes = 11;
+                anio--;
+            }
+
+            if (mes > 11) {
+                mes = 0;
+                anio++;
+            }
+
+            generarCalendario();
+        }
+
+        generarCalendario();
+    </script>
+
+</body>
+</html>

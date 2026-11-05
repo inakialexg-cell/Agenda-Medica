@@ -1,0 +1,274 @@
+
+<div class="panel-formulario" id="panelFormulario">
+
+    <div class="encabezado-formulario">
+        <h2>Nueva consulta</h2>
+
+        <button type="button" onclick="cerrarFormulario()">
+            &times;
+        </button>
+    </div>
+
+    <form action="/consultas" method="POST">
+
+        <!-- Buscar paciente -->
+        <div class="campo">
+            <label for="buscarPaciente">Buscar paciente</label>
+
+            <input
+                type="text"
+                id="buscarPaciente"
+                placeholder="Escribe el nombre del paciente"
+                autocomplete="off"
+            >
+
+            <div id="resultadosPacientes"></div>
+
+            <input
+                type="hidden"
+                name="paciente_id"
+                id="paciente_id"
+                required
+            >
+        </div>
+
+        <!-- Doctor -->
+        <div class="campo">
+            <label for="doctor">Doctor</label>
+
+            <input
+                type="text"
+                name="doctor"
+                id="doctor"
+                placeholder="Nombre del doctor"
+                required
+            >
+        </div>
+
+        <!-- Fecha -->
+        <div class="campo">
+            <label for="fecha">Fecha</label>
+
+            <input
+                type="date"
+                name="fecha"
+                id="fecha"
+                required
+            >
+        </div>
+
+        <!-- Hora -->
+        <div class="campo">
+            <label for="hora">Hora</label>
+
+            <input
+                type="time"
+                name="hora"
+                id="hora"
+                required
+            >
+        </div>
+
+        <!-- Motivo -->
+        <div class="campo">
+            <label for="motivo">Motivo de consulta</label>
+
+            <textarea
+                name="motivo"
+                id="motivo"
+                placeholder="Describe el motivo de la consulta"
+                required
+            ></textarea>
+        </div>
+
+        <!-- Costo -->
+        <div class="campo">
+            <label for="costo">Costo</label>
+
+            <div class="campo-costo">
+                <span>$</span>
+
+                <input
+                    type="number"
+                    name="costo"
+                    id="costo"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    required
+                >
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="acciones-formulario">
+
+            <button type="button" onclick="cerrarFormulario()">
+                Cancelar
+            </button>
+
+            <button type="submit">
+                Guardar consulta
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<style>
+    .panel-formulario {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 380px;
+        max-width: 100%;
+        height: 100vh;
+        background: white;
+        padding: 25px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        box-shadow: -3px 0 15px rgba(0,0,0,0.15);
+        z-index: 1000;
+    }
+
+    .encabezado-formulario {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .encabezado-formulario h2 {
+        color: #145C4B;
+        font-family: 'Fraunces', serif;
+    }
+
+    .campo {
+        margin-bottom: 18px;
+    }
+
+    .campo label {
+        display: block;
+        margin-bottom: 7px;
+        font-weight: bold;
+    }
+
+    .campo input,
+    .campo textarea {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .campo textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .campo-costo {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding-left: 10px;
+    }
+
+    .campo-costo input {
+        border: none;
+    }
+
+    .acciones-formulario {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .acciones-formulario button {
+        padding: 11px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #CDE8DF;
+        color: #145C4B;
+    }
+
+    .acciones-formulario button[type="submit"] {
+        background: #145C4B;
+        color: white;
+    }
+
+    #resultadosPacientes {
+        margin-top: 5px;
+    }
+</style>
+
+
+<script>
+    // Pacientes de prueba
+    const pacientesPrueba = [
+        { id: 1, nombre: 'Juan Pérez' },
+        { id: 2, nombre: 'María López' },
+        { id: 3, nombre: 'Carlos García' }
+    ];
+
+    const buscarPaciente = document.getElementById('buscarPaciente');
+    const resultadosPacientes = document.getElementById('resultadosPacientes');
+    const pacienteId = document.getElementById('paciente_id');
+
+    // Buscar pacientes por nombre
+    buscarPaciente.addEventListener('input', function() {
+
+        const texto = this.value.toLowerCase();
+
+        resultadosPacientes.innerHTML = '';
+
+        pacienteId.value = '';
+
+        if (texto.length === 0) return;
+
+        const encontrados = pacientesPrueba.filter(paciente =>
+            paciente.nombre.toLowerCase().includes(texto)
+        );
+
+        encontrados.forEach(paciente => {
+
+            const opcion = document.createElement('button');
+
+            opcion.type = 'button';
+            opcion.textContent = paciente.nombre;
+            opcion.style.display = 'block';
+            opcion.style.width = '100%';
+            opcion.style.padding = '10px';
+            opcion.style.textAlign = 'left';
+            opcion.style.background = '#CDE8DF';
+            opcion.style.border = 'none';
+            opcion.style.cursor = 'pointer';
+
+            opcion.addEventListener('click', function() {
+                buscarPaciente.value = paciente.nombre;
+                pacienteId.value = paciente.id;
+                resultadosPacientes.innerHTML = '';
+            });
+
+            resultadosPacientes.appendChild(opcion);
+        });
+
+    });
+
+    // Cerrar el formulario
+    function cerrarFormulario() {
+        document.getElementById('panelFormulario').style.display = 'none';
+    }
+
+    // Abrir el formulario
+    function abrirFormulario() {
+    document.getElementById('panelFormulario').style.display = 'block';
+}
+</script>

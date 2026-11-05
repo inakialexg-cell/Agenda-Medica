@@ -1,6 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
+const db = require('../config/db');
 
 const {
     obtenerConsultas,
@@ -144,6 +145,28 @@ router.put('/:id/estatus', async (req, res) => {
     }
 });
 
+// Mostrar calendario de consultas
+router.get('/calendario', async (req, res) => {
+    try {
+        const resultado = await db.query(`
+            SELECT DISTINCT
+                TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha
+            FROM consultas
+        `);
+
+        const diasConConsultas = resultado.rows.map(
+            consulta => consulta.fecha
+        );
+
+        res.render('consultas/calendario', {
+            diasConConsultas
+        });
+
+    } catch (error) {
+        console.error('Error al cargar el calendario:', error);
+        res.status(500).send('No se pudo cargar el calendario');
+    }
+});
 
 // Exportar las rutas
 module.exports = router;
