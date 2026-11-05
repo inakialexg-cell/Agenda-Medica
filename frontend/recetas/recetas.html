@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recetas — Consultorio "Diaz"</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="recetas.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-cruz">+</span><span class="marca">Consultorio "Diaz"</span></div>
+    <p class="etiqueta">PANEL ADMINISTRADOR</p>
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#">Pacientes</a>
+      <a href="#">Consultas</a>
+      <a href="recetas.html" class="activo">Recetas</a>
+      <a href="#">Historial</a>
+    </nav>
+    <p class="etiqueta">CUENTA</p>
+    <nav>
+      <a href="#">Mi perfil</a>
+      <a href="#" id="cerrar-sesion">Cerrar sesión</a>
+    </nav>
+    <div class="usuario"><span class="avatar-usuario">DD</span><div><strong>Dra. Ana Díaz</strong><small>Administradora</small></div></div>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1>Recetas</h1>
+        <p class="sub" id="subtitulo">Cargando...</p>
+      </div>
+      <button class="btn" id="btn-nueva">+ Nueva receta</button>
+    </div>
+
+    <div id="mensaje" class="mensaje oculto"></div>
+
+    <input class="buscador" id="buscador" type="search" placeholder="Buscar por paciente o medicamento...">
+
+    <div class="tarjeta">
+      <table>
+        <thead>
+          <tr><th>PACIENTE</th><th>MEDICAMENTO</th><th>EMITIDA</th><th>ESTATUS</th></tr>
+        </thead>
+        <tbody id="tabla-recetas"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Panel lateral: nueva receta -->
+  <aside class="panel" id="panel">
+    <h2>Nueva receta <button type="button" class="cerrar" id="btn-cerrar" aria-label="Cerrar">×</button></h2>
+    <div id="error-form" class="mensaje error oculto"></div>
+
+    <form id="form-receta" novalidate>
+      <label for="paciente">Paciente</label>
+      <input id="paciente" type="text" list="lista-pacientes" placeholder="Buscar paciente..." autocomplete="off">
+      <datalist id="lista-pacientes"></datalist>
+
+      <label for="medicamento">Medicamento</label>
+      <input id="medicamento" type="text" placeholder="Ej. Amoxicilina 500mg">
+
+      <label for="dosis">Dosis e indicaciones</label>
+      <input id="dosis" type="text" placeholder="1 cada 8 horas por 7 días">
+
+      <label for="doctor">Doctor que prescribe</label>
+      <select id="doctor"></select>
+
+      <label for="notas">Notas para el paciente (opcional)</label>
+      <textarea id="notas" placeholder="Tomar con alimentos..."></textarea>
+
+      <button class="btn ancho" type="submit">GUARDAR RECETA</button>
+      <button class="btn btn-sec ancho" type="button" id="btn-cancelar">Cancelar</button>
+    </form>
+  </aside>
+
+  <script src="recetas.js"></script>
+</body>
+</html>
