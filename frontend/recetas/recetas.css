@@ -1,0 +1,96 @@
+:root {
+  --verde: #145C4B;
+  --verde-claro: #CDE8DF;
+  --fondo: #F4F6F9;
+  --texto: #1A1A1A;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: 'Quattrocento Sans', sans-serif;
+}
+
+h1, h2, .marca { font-family: 'Fraunces', serif; }
+
+/* ---------- Menú lateral ---------- */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--verde);
+  color: #fff;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.logo { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.logo-cruz { background: #fff; color: var(--verde); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.logo .marca { font-size: 14px; }
+.etiqueta { font-size: 10px; letter-spacing: .1em; color: rgba(255,255,255,.55); margin: 16px 8px 6px; }
+.sidebar nav a { display: block; color: #fff; text-decoration: none; padding: 9px 10px; border-radius: 8px; font-size: 14px; margin-bottom: 2px; }
+.sidebar nav a:hover { background: rgba(255,255,255,.1); }
+.sidebar nav a.activo { background: rgba(255,255,255,.18); font-weight: 700; }
+.usuario { margin-top: auto; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.12); padding: 10px; border-radius: 10px; font-size: 12px; }
+.usuario small { display: block; opacity: .7; }
+.avatar-usuario { width: 28px; height: 28px; border-radius: 50%; background: #fff; color: var(--verde); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
+
+/* ---------- Contenido ---------- */
+.contenido { flex: 1; padding: 28px; min-width: 0; }
+.encabezado { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.encabezado h1 { margin: 0; font-size: 26px; }
+.sub { color: #6b7280; font-size: 13px; margin: 2px 0 16px; }
+
+.buscador { padding: 9px 14px; border: 1px solid #e3e6ea; border-radius: 20px; width: 100%; max-width: 300px; background: #fff; font-family: inherit; font-size: 14px; }
+
+.btn { background: var(--verde); color: #fff; border: 0; padding: 10px 16px; border-radius: 8px; font-family: inherit; font-weight: 700; cursor: pointer; }
+.btn:hover { opacity: .9; }
+.btn-sec { background: #fff; color: var(--texto); border: 1px solid #e3e6ea; }
+.ancho { width: 100%; margin-top: 12px; }
+
+.tarjeta { background: #fff; border-radius: 12px; padding: 8px 20px; margin-top: 14px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 520px; }
+th { text-align: left; font-size: 11px; letter-spacing: .05em; color: #9aa0a6; padding: 12px 8px; }
+td { padding: 12px 8px; border-top: 1px solid #f0f1f3; font-size: 14px; }
+.persona { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.linea2 { font-size: 12px; color: #8a8f98; }
+.vacio { text-align: center; color: #8a8f98; padding: 40px 0; }
+
+/* Badges de estatus */
+.badge { border: 0; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-family: inherit; cursor: pointer; }
+.badge.vigente { background: #EAF3DE; color: #3B6D11; }
+.badge.finalizada { background: #EEECE6; color: #5F5E5A; }
+
+/* Mensajes */
+.mensaje { background: var(--verde-claro); color: var(--verde); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+.mensaje.error { background: #FCEBEB; color: #A32D2D; }
+.oculto { display: none; }
+
+/* ---------- Panel lateral (se desliza desde la derecha) ---------- */
+.panel {
+  position: fixed; top: 0; right: 0; height: 100%;
+  width: 320px; max-width: 100%;
+  background: #fff; border-left: 1px solid #eee;
+  padding: 24px 20px; overflow-y: auto; z-index: 10;
+  transform: translateX(100%); transition: transform .25s;
+}
+.panel.abierto { transform: translateX(0); }
+.panel h2 { font-size: 18px; margin: 0 0 16px; display: flex; justify-content: space-between; align-items: center; }
+.panel label { display: block; font-size: 11px; color: #6b7280; margin: 12px 0 4px; }
+.panel input, .panel select, .panel textarea { width: 100%; padding: 9px 10px; border: 1px solid #e3e6ea; border-radius: 8px; font-family: inherit; font-size: 14px; background: var(--fondo); }
+.panel textarea { min-height: 70px; resize: vertical; }
+.cerrar { background: none; border: 0; font-size: 22px; cursor: pointer; color: #9aa0a6; }
+
+/* Celular: el menú pasa arriba */
+@media (max-width: 760px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px; }
+  .etiqueta, .usuario { display: none; }
+  .sidebar nav { display: flex; flex-wrap: wrap; }
+  .contenido { padding: 16px; }
+}

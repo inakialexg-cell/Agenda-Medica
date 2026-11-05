@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pacientes — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"><link rel="stylesheet" href="/css/modulos.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cab-mod">
+    <div><h1>Pacientes</h1><p class="sub" id="sub">Cargando...</p></div>
+    <button class="btn btn-nuevo" id="btn-nuevo"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo paciente</button>
+  </div>
+  <div id="mensaje" class="mensaje oculto"></div>
+  <div class="barra"><label class="buscar ancho"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input id="q" type="search" placeholder="Buscar por nombre o teléfono..."></label></div>
+  <div class="panel">
+    <table><thead><tr><th>PACIENTE</th><th>TELÉFONO</th><th>ÚLTIMA VISITA</th><th>ESTATUS</th></tr></thead><tbody id="tabla"></tbody></table>
+    <p class="vacio oculto" id="vacio">No se encontraron pacientes.</p>
+  </div>
+</main>
+<form class="lateral" id="lat">
+  <h2 id="lat-t">Nuevo paciente</h2>
+  <label>Nombre completo<input id="f-nombre" required></label>
+  <label>Teléfono<input id="f-tel" required inputmode="tel"></label>
+  <label>Correo electrónico<input id="f-mail" type="email" required></label>
+  <label>Fecha de nacimiento<input id="f-nac" type="date"></label>
+  <label>Notas médicas <small>(opcional)</small><textarea id="f-notas"></textarea></label>
+  <label id="f-act-w" class="oculto"><select id="f-act"><option value="true">Activo</option><option value="false">Inactivo</option></select></label>
+  <p class="error oculto" id="f-err"></p>
+  <button class="btn" id="f-ok">GUARDAR PACIENTE</button>
+  <button type="button" class="btn btn-sec" id="f-cancel">Cancelar</button>
+  <p class="vacio" id="f-nota" style="font-size:12px">Contraseña temporal del paciente: 123456</p>
+</form>
+<script src="/js/comun.js"></script>
+<script>
+const u = exigirRol('ADMINISTRADOR');
+if (u) {
+  dibujarSidebar(u, 'pacientes');
+  const $ = id => document.getElementById(id);
+  let lista = [], editando = null, timer;
+  const falla = e => { $('mensaje').textContent = e.message; $('mensaje').classList.remove('oculto'); };
+  function dibujar() {
+    $('tabla').innerHTML = lista.map(p => `<tr class="clic" data-id="${p.id}"><td><div class="celda-pac"><span class="avatar-c">${esc(iniciales(p.nombre))}</span><div><strong>${esc(p.nombre)}</strong><small>${esc(p.email)}</small></div></div></td><td>${esc(p.telefono || '—')}</td><td>${p.ultima_visita ? esc(fechaCorta(p.ultima_visita)) : 'Sin visitas'}</td><td><span class="badge ${p.activo ? 'b-activo' : 'b-inactivo'}">${p.activo ? 'Activo' : 'Inactivo'}</span></td></tr>`).join('');
+    $('vacio').classList.toggle('oculto', lista.length > 0);
+    $('sub').textContent = lista.length + ' paciente' + (lista.length === 1 ? '' : 's') + ' registrado' + (lista.length === 1 ? '' : 's');
+  }
+  const cargar = () => pedir('/pacientes' + ($('q').value.trim() ? '?q=' + encodeURIComponent($('q').value.trim()) : '')).then(r => { lista = r; dibujar(); }).catch(falla);
+  $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(cargar, 250); });
+  function abrir(p) {
+    editando = p;
+    $('lat-t').textContent = p ? 'Editar paciente' : 'Nuevo paciente';
+    $('f-nombre').value = p ? p.nombre : ''; $('f-tel').value = p ? p.telefono || '' : ''; $('f-mail').value = p ? p.email : '';
+    $('f-nac').value = p && p.fecha_nacimiento ? String(p.fecha_nacimiento).slice(0, 10) : ''; $('f-notas').value = p ? p.notas_medicas || '' : '';
+    $('f-act').value = p && !p.activo ? 'false' : 'true'; $('f-act-w').classList.toggle('oculto', !p); $('f-nota').classList.toggle('oculto', !!p);
+    $('f-err').classList.add('oculto'); $('lat').classList.add('abierto');
+  }
+  $('btn-nuevo').onclick = () => abrir(null);
+  $('f-cancel').onclick = () => $('lat').classList.remove('abierto');
+  $('tabla').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (tr) abrir(lista.find(p => p.id == tr.dataset.id)); });
+  $('lat').onsubmit = async e => {
+    e.preventDefault();
+    const cuerpo = { nombre: $('f-nombre').value.trim(), telefono: $('f-tel').value.trim(), email: $('f-mail').value.trim(), fecha_nacimiento: $('f-nac').value || null, notas_medicas: $('f-notas').value.trim() || null };
+    try {
+      if (editando) { cuerpo.activo = $('f-act').value === 'true'; await pedir('/pacientes/' + editando.id, { method: 'PUT', body: JSON.stringify(cuerpo) }); }
+      else await pedir('/pacientes', { method: 'POST', body: JSON.stringify(cuerpo) });
+      $('lat').classList.remove('abierto'); cargar();
+    } catch (er) { $('f-err').textContent = er.message; $('f-err').classList.remove('oculto'); }
+  };
+  cargar();
+}
+</script></body></html>

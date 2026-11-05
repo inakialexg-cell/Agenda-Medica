@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consultas — Consultorio "Diaz"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Quattrocento+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/comun.css"><link rel="stylesheet" href="/css/modulos.css"></head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<main class="contenido">
+  <div class="cab-mod">
+    <div><h1>Consultas</h1><p class="sub" id="sub">Cargando...</p></div>
+    <button class="btn btn-nuevo" id="btn-nueva"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nueva consulta</button>
+  </div>
+  <div id="mensaje" class="mensaje oculto"></div>
+  <div class="barra">
+    <button class="pill activo" id="v-lista">Lista</button><button class="pill" id="v-cal">Calendario</button>
+    <select id="f-estatus"><option value="">Todos los estatus</option><option value="CONFIRMADA">Confirmada</option><option value="PENDIENTE">Pendiente</option><option value="CANCELADA">Cancelada</option></select>
+  </div>
+  <div class="cons-grid" id="grid">
+    <div class="panel" id="col-tabla">
+      <table><thead><tr><th>HORA</th><th>PACIENTE</th><th>DOCTOR</th><th>COSTO</th><th>ESTATUS</th><th></th></tr></thead><tbody id="tabla"></tbody></table>
+      <p class="vacio oculto" id="vacio">No hay consultas para este día.</p>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="cal-cab"><button id="prev" aria-label="Mes anterior">‹</button><h3 id="mes-t"></h3><button id="next" aria-label="Mes siguiente">›</button></div>
+        <div class="cal" id="cal"></div>
+        <p class="leyenda"><i></i>Día con consultas agendadas</p>
+      </div>
+      <div class="panel dia-card"><h3 id="dia-t"></h3><div id="dia-l"></div></div>
+    </div>
+  </div>
+</main>
+<div class="fondo-modal oculto" id="fondo"><form class="modal ancho form-m" id="form">
+  <h2>Nueva consulta</h2>
+  <label>Paciente<select id="n-pac" required></select></label>
+  <label>Doctor<select id="n-doc" required></select></label>
+  <label>Fecha y hora<input type="datetime-local" id="n-fecha" required></label>
+  <label>Motivo<input id="n-motivo" required placeholder="Ej. Revisión general"></label>
+  <label>Costo (MXN)<input type="number" id="n-costo" min="0" step="50" value="500"></label>
+  <p class="mensaje oculto" id="n-err" style="margin-top:12px"></p>
+  <div class="acciones"><button type="button" class="btn btn-sec" id="n-cancel">Cancelar</button><button class="btn">Guardar</button></div>
+</form></div>
+<script src="/js/comun.js"></script>
+<script>
+const u = exigirRol('ADMINISTRADOR');
+if (u) {
+  dibujarSidebar(u, 'consultas');
+  const $ = id => document.getElementById(id);
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const iso = d => d.toLocaleDateString('en-CA');
+  const hoyIso = iso(new Date());
+  let mes = new Date(); mes.setDate(1);
+  let sel = hoyIso, delMes = [], delDia = [], total = 0;
+  const falla = e => { $('mensaje').textContent = e.message; $('mensaje').classList.remove('oculto'); };
+  const dinero = n => '$' + Number(n || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+
+  function dibujarTabla() {
+    const f = $('f-estatus').value;
+    const ver = delDia.filter(c => !f || c.estatus === f);
+    $('tabla').innerHTML = ver.map(c => `<tr><td class="hora-b">${esc(hora(c.fecha_hora))}</td><td>${esc(c.paciente_nombre)}</td><td>${esc(c.doctor_nombre || '—')}</td><td>${dinero(c.costo)}</td><td>${badge(c.estatus)}</td>
+      <td>${c.estatus !== 'CONFIRMADA' ? `<button class="acc-link" data-id="${c.id}" data-e="CONFIRMADA">Confirmar</button>` : ''}${c.estatus !== 'CANCELADA' ? `<button class="acc-link rojo" data-id="${c.id}" data-e="CANCELADA">Cancelar</button>` : ''}</td></tr>`).join('')
+      + (ver.length ? `<tr class="fila-total"><td colspan="3">Total cobrado ${sel === hoyIso ? 'hoy' : 'ese día'}</td><td class="monto">${dinero(total)}</td><td colspan="2"></td></tr>` : '');
+    $('vacio').classList.toggle('oculto', ver.length > 0);
+    const n = delDia.length;
+    $('sub').textContent = `${n} consulta${n === 1 ? '' : 's'} programada${n === 1 ? '' : 's'} ${sel === hoyIso ? 'para hoy' : 'para el ' + new Date(sel + 'T12:00').toLocaleDateString('es-MX', { day:'numeric', month:'long' })}`;
+    const d = new Date(sel + 'T12:00');
+    $('dia-t').textContent = (sel === hoyIso ? 'Hoy' : d.toLocaleDateString('es-MX', { weekday:'long' }).replace(/^./, m => m.toUpperCase())) + ' — ' + d.getDate() + ' de ' + MESES[d.getMonth()].toLowerCase();
+    $('dia-l').innerHTML = delDia.length ? delDia.map(c => `<div class="dia-item"><span class="pt ${c.estatus.toLowerCase()}"></span><span><strong>${esc(hora(c.fecha_hora))}</strong> ${esc(c.paciente_nombre)}<br><small>${esc(c.motivo)}</small></span></div>`).join('') : '<p class="vacio">Sin consultas.</p>';
+  }
+  function dibujarCal() {
+    const y = mes.getFullYear(), m = mes.getMonth();
+    $('mes-t').textContent = MESES[m] + ' ' + y;
+    const primero = (new Date(y, m, 1).getDay() + 6) % 7, dias = new Date(y, m + 1, 0).getDate();
+    const con = new Set(delMes.filter(c => c.estatus !== 'CANCELADA').map(c => iso(new Date(c.fecha_hora))));
+    let h = ['L','M','M','J','V','S','D'].map(x => `<div class="dn">${x}</div>`).join('') + '<div></div>'.repeat(primero);
+    for (let d = 1; d <= dias; d++) {
+      const f = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      h += `<button class="dia ${f === hoyIso ? 'hoy' : ''} ${f === sel ? 'sel' : ''} ${con.has(f) ? 'con' : ''}" data-f="${f}">${d}</button>`;
+    }
+    $('cal').innerHTML = h;
+  }
+  const cargarMes = () => pedir('/consultas/mes?mes=' + iso(mes).slice(0, 7)).then(r => { delMes = r; dibujarCal(); }).catch(falla);
+  const cargarDia = () => pedir('/consultas/dia?fecha=' + sel).then(r => { delDia = r.consultas; total = r.totalCobrado; dibujarTabla(); dibujarCal(); }).catch(falla);
+
+  $('cal').addEventListener('click', e => { const b = e.target.closest('.dia'); if (b) { sel = b.dataset.f; cargarDia(); } });
+  $('prev').onclick = () => { mes.setMonth(mes.getMonth() - 1); cargarMes(); };
+  $('next').onclick = () => { mes.setMonth(mes.getMonth() + 1); cargarMes(); };
+  $('f-estatus').onchange = dibujarTabla;
+  $('v-lista').onclick = () => { $('grid').classList.remove('solo-cal'); $('v-lista').classList.add('activo'); $('v-cal').classList.remove('activo'); };
+  $('v-cal').onclick = () => { $('grid').classList.add('solo-cal'); $('v-cal').classList.add('activo'); $('v-lista').classList.remove('activo'); };
+  $('tabla').addEventListener('click', async e => {
+    const b = e.target.closest('.acc-link'); if (!b) return;
+    if (b.dataset.e === 'CANCELADA' && !confirm('¿Cancelar esta consulta?')) return;
+    try { await pedir('/consultas/' + b.dataset.id + '/estatus', { method: 'PUT', body: JSON.stringify({ estatus: b.dataset.e }) }); await cargarDia(); cargarMes(); } catch (er) { falla(er); }
+  });
+  // Nueva consulta
+  $('btn-nueva').onclick = async () => {
+    try {
+      const [p, d] = await Promise.all([pedir('/pacientes'), pedir('/doctores')]);
+      $('n-pac').innerHTML = p.filter(x => x.activo).map(x => `<option value="${x.id}">${esc(x.nombre)}</option>`).join('');
+      $('n-doc').innerHTML = d.map(x => `<option value="${x.id}">${esc(x.nombre)}</option>`).join('');
+      $('n-fecha').value = sel + 'T09:00'; $('n-err').classList.add('oculto');
+      $('fondo').classList.remove('oculto');
+    } catch (er) { falla(er); }
+  };
+  $('n-cancel').onclick = () => $('fondo').classList.add('oculto');
+  $('form').onsubmit = async e => {
+    e.preventDefault();
+    try {
+      await pedir('/consultas', { method: 'POST', body: JSON.stringify({ paciente_id: +$('n-pac').value, doctor_id: +$('n-doc').value, fecha_hora: $('n-fecha').value, motivo: $('n-motivo').value.trim(), costo: +$('n-costo').value }) });
+      $('fondo').classList.add('oculto'); $('n-motivo').value = '';
+      sel = $('n-fecha').value.slice(0, 10); mes = new Date(sel + 'T12:00'); mes.setDate(1);
+      await cargarDia(); cargarMes();
+    } catch (er) { $('n-err').textContent = er.message; $('n-err').classList.remove('oculto'); }
+  };
+  cargarDia(); cargarMes();
+}
+</script></body></html>
